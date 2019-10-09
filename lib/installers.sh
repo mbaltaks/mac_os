@@ -90,6 +90,31 @@ install_zip_pkg() {
 }
 export -f install_zip_pkg
 
+# Copies a path from a zip file.
+# Parameters: $1 (required) - URL, $2 (required) - Path, $3 (required) - Destination.
+install_zip_path() {
+  local url="$1"
+  local source_path="$2"
+  local destination_path="$3"
+  local work_file="download.zip"
+
+  if [[ ! -e "$destination_path" ]]; then
+    download_file "$url" "$work_file"
+
+    (
+      printf "Preparing...\n"
+      cd "$MAC_OS_WORK_PATH"
+      unzip -q "$work_file"
+    )
+
+    rsync -a "$MAC_OS_WORK_PATH/$source_path" "$destination_path"
+
+    printf "Copied: $MAC_OS_WORK_PATH/$source_path to $destination_path.\n"
+    verify_path "$destination_path"
+  fi
+}
+export -f install_zip_path
+
 # Installs an application via a tar file.
 # Parameters: $1 (required) - URL, $2 (required) - Application name, $3 (required) - Decompress options.
 install_tar_app() {
